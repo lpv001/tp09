@@ -79,15 +79,79 @@ const getuser = async (req ,res) => {
     }
 }
 
+const me = async (req, res) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');  
+    res.header("Access-Control-Allow-Headers", "Cookie");
+    const jwt_token = req.headers['cookie']
+
+    const verify = jwt.verify(jwt_token, "sfbsd!sad@!dsf#$#", (err, user) => {
+        if (err) {
+            console.log("fail")
+            return res.status(401).json({
+                success: false,
+                message: "token expired"
+            })
+        }
+        return res.status(200).json({
+            success: true,
+            body: user
+        })
+    })
+}
+
+const update_user = async (req, res) => {
+
+    const {_id, username, firstname, lastname} = req.body
+
+    try {
+        const user = await UserModel.findByIdAndUpdate(_id, {
+            username: username,
+            firstname: firstname,
+            lastname: lastname
+        })
+        return res.status(201).json(user)
+    } catch (error) {
+        return res.status(401).json({success: "fail"})
+    }
+
+}
+
+const update_password = async (req, res) => {
+
+    const {_id, password} = req.body
+
+    const hashpassword = await bcrypt.hash(password, "$2a$10$B2o1NNfOuuKYgt8pDDJVfu")
+
+    try {
+        const user = await UserModel.findByIdAndUpdate(_id, {
+            password: hashpassword
+        })
+        return res.status(201).json(user)
+    } catch (error) {
+        return res.status(401).json({success: "fail"})
+    }
+
+}
+
+const delete_user = async (req, res) => {
+    const _id = req.body
+    await UserModel.deleteOne({ _id: _id })
+    return res.status(200).json({message: "deleted"})
+}
 
 function getToken(user) {
     return jwt.sign({
         data: user,
-    },"sfbsd!sad@!dsf#$#", { expiresIn: '1200s' })
+    },"sfbsd!sad@!dsf#$#", { expiresIn: '2400s' })
 }
 
 export {
     register,
     login,
-    getuser
+    getuser,
+    me,
+    update_user,
+    update_password,
+    delete_user
 }

@@ -161,7 +161,7 @@ export default {
     async fetchuser(){
       try {
         let uid = localStorage.getItem('uid')
-        let result = await axios.get("http://localhost:3000/api/v1/user/" + uid, {withCredentials:true})
+        let result = await axios.get("http://localhost:3000/api/v1/user/by/" + uid, {withCredentials:true})
         this.username = result.data.user.username
         console.log(result.data.user.username)
       } catch (error) {
